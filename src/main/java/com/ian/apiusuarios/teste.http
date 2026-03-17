@@ -1,7 +1,5 @@
-### Listar usuários
 GET https://curly-xylophone-r4r567gx7xrjhpj7w-8080.app.github.dev/usuarios
 
-### Criar um usuário novo
 POST https://curly-xylophone-r4r567gx7xrjhpj7w-8080.app.github.dev/usuarios
 Content-Type: application/json
 
@@ -10,7 +8,6 @@ Content-Type: application/json
   "email": "ian@exemplo.com"
 }
 
-### Alterar o nome do usuário 1
 PUT http://localhost:8080/usuarios/1
 Content-Type: application/json
 
@@ -19,5 +16,4 @@ Content-Type: application/json
   "email": "ian.master@exemplo.com"
 }
 
-### Deletar o usuário 2
 DELETE http://localhost:8080/usuarios/2
