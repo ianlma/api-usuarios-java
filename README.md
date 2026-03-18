@@ -1,55 +1,12 @@
-# api-usuarios-java
-Projeto de API REST desenvolvido em Java utilizando Spring Boot para gerenciamento de usuários.
+Gerenciador de Usuários - Projeto Full-Stack
+Este projeto é um sistema de gerenciamento de usuários que desenvolvi para colocar em prática o que venho estudando sobre Java e infraestrutura. Foi o meu primeiro deploy completo, tirando a aplicação do ambiente local e colocando para rodar na nuvem.
 
-Tecnologias utilizadas
+O que foi desenvolvido
+O backend foi construído com Java e Spring Boot, estruturando uma API REST para o processamento dos dados. No frontend, utilizei HTML, CSS e JavaScript para criar uma interface que se comunica com o servidor em tempo real.
 
-Java 17
+Docker e Hospedagem
+Para garantir que o projeto funcionasse em qualquer lugar, utilizei Docker para containerizar a aplicação. O deploy foi feito no Render, integrando o repositório do GitHub para atualizações automáticas.
 
-Spring Boot
-
-Spring Web
-
-Spring Data JPA
-
-Banco de dados H2
-
-Maven
-
-Funcionalidades
-
-Criar usuário
-
-Listar usuários
-
-Estrutura preparada para atualização e remoção de usuários
-
-Arquitetura organizada em Controller, Model e Repository
-
-Estrutura do projeto
-
-src/main/java/com/ian/apiusuarios
-
-controller → Endpoints da API
-
-model → Entidades do sistema
-
-repository → Comunicação com o banco de dados
-
-Endpoint principal
-
-GET /usuarios
-Lista todos os usuários cadastrados.
-
-POST /usuarios
-Cria um novo usuário.
-
-Exemplo de JSON para criação:
-
-{
-"nome": "Ian",
-"email": "ian@email.com"
-}
-
-Objetivo do projeto
-
-Projeto desenvolvido para prática de desenvolvimento backend utilizando Java e Spring Boot, demonstrando conhecimentos em criação de APIs REST, organização de código em camadas e integração com banco de dados.
+Link para teste
+A aplicação pode ser acessada pelo link abaixo:
+https://api-usuarios-java.onrender.com/
