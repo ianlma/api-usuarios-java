@@ -2,120 +2,101 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gerenciador de Usuários Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Usuários - Ian Lima</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1c1e21; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; }
-        h2:first-child { margin-top: 0; }
-        
-        .form-group { margin-bottom: 15px; display: flex; gap: 10px; align-items: flex-start; }
-        
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; transition: all 0.3s; }
-        
-        /* CSS para Erro Visual */
-        .input-error { border: 2px solid #dc3545 !important; background-color: #fff8f8; }
-        
-        button { padding: 12px 20px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
-        .btn-add { background-color: #28a745; color: white; min-width: 120px; }
-        .btn-add:hover { background-color: #218838; }
-        
-        .btn-delete { background-color: #dc3545; color: white; padding: 6px 12px; font-size: 13px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input { padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; }
+        button:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .btn-delete { background-color: #dc3545; }
         .btn-delete:hover { background-color: #c82333; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 14px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background-color: #f8f9fa; color: #4b4f56; text-transform: uppercase; font-size: 12px; }
-        tr:hover { background-color: #fafafa; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Cadastrar Novo Usuário</h2>
-    <div class="form-group">
-        <input type="text" id="nome" placeholder="Nome completo">
-        <input type="email" id="email" placeholder="E-mail (ex: nome@email.com)">
-        <button class="btn-add" onclick="salvar()">Adicionar</button>
-    </div>
+    <h1>Sistema de Usuários (Full Stack)</h1>
 
-    <h2>Lista de Usuários</h2>
+    <form id="userForm">
+        <input type="text" id="nome" placeholder="Nome" required>
+        <input type="email" id="email" placeholder="E-mail" required>
+        <button type="submit">Adicionar Usuário</button>
+    </form>
+
     <table>
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nome</th>
-                <th>Email</th>
+                <th>E-mail</th>
                 <th>Ações</th>
             </tr>
         </thead>
-        <tbody id="tabela-usuarios">
+        <tbody id="userTableBody">
             </tbody>
     </table>
-</div>
 
-<script>
-    const API_URL = '/usuarios';
+    <script>
+        const API_URL = "https://api-usuarios-java.onrender.com/usuarios";
+        async function fetchUsers() {
+            try {
+                const response = await fetch(API_URL);
+                const users = await response.json();
+                const tableBody = document.getElementById('userTableBody');
+                tableBody.innerHTML = '';
 
-    // Função para carregar a lista
-    async function carregar() {
-        try {
-            const res = await fetch(API_URL);
-            const usuarios = await res.json();
-            const corpoTabela = document.getElementById('tabela-usuarios');
-            corpoTabela.innerHTML = usuarios.map(user => `
-                <tr>
-                    <td>${user.id}</td>
-                    <td>${user.nome}</td>
-                    <td>${user.email}</td>
-                    <td><button class="btn-delete" onclick="excluir(${user.id})">Excluir</button></td>
-                </tr>`).join('');
-        } catch (error) {
-            console.error("Erro ao carregar usuários:", error);
+                users.forEach(user => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.nome}</td>
+                            <td>${user.email}</td>
+                            <td>
+                                <button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Erro ao buscar usuários:", error);
+            }
         }
-    }
 
-    // Função para salvar com feedback de erro
-    async function salvar() {
-        const nomeInput = document.getElementById('nome');
-        const emailInput = document.getElementById('email');
-        
-        // Remove marcações de erro anteriores
-        nomeInput.classList.remove('input-error');
-        emailInput.classList.remove('input-error');
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
 
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                nome: nomeInput.value,
-                email: emailInput.value
-            })
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email })
+                });
+                document.getElementById('userForm').reset();
+                fetchUsers(); // Atualiza a lista
+            } catch (error) {
+                console.error("Erro ao salvar usuário:", error);
+            }
         });
 
-        if (res.ok) {
-            // Limpa campos e recarrega lista
-            nomeInput.value = '';
-            emailInput.value = '';
-            carregar();
-        } else {
-            // Feedback visual se a API (Java) recusar os dados
-            nomeInput.classList.add('input-error');
-            emailInput.classList.add('input-error');
-            alert("⚠️ Erro na validação: Certifique-se de que o nome não está vazio e o e-mail é válido.");
+        async function deleteUser(id) {
+            if (confirm("Deseja realmente excluir este usuário?")) {
+                try {
+                    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    fetchUsers(); // Atualiza a lista
+                } catch (error) {
+                    console.error("Erro ao excluir:", error);
+                }
+            }
         }
-    }
 
-    // Função para excluir
-    async function excluir(id) {
-        if(confirm('Tem certeza que deseja excluir este usuário?')) {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            carregar();
-        }
-    }
-
-    // Inicia a página carregando os dados
-    carregar();
-</script>
+        fetchUsers();
+    </script>
 </body>
 </html>
