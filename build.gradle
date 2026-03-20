@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    // Web e Banco de Dados
+    runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -32,4 +32,12 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jar {
+    enabled = false
+}
+
+bootJar {
+    archiveClassifier = ''
 }
