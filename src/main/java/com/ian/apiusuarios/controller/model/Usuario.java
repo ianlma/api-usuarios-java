@@ -10,7 +10,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY) // Oculta o ID no Swagger para evitar erro 400
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
     private Long id;
 
     @NotBlank(message = "O nome é obrigatório")
