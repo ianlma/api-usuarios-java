@@ -3,6 +3,7 @@ package com.ian.apiusuarios.controller;
 import com.ian.apiusuarios.model.Usuario;
 import com.ian.apiusuarios.repository.UsuarioRepository;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +25,13 @@ public class UsuarioController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED) // Retorna 201 em vez de 200
     public Usuario criar(@Valid @RequestBody Usuario usuario) {
         return repository.save(usuario);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletar(@PathVariable Long id) {
         repository.deleteById(id);
     }

@@ -5,28 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamento de Usuários - Ian Lima</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
-        h1 { color: #333; }
-        form { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input { padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 8px 15px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #007bff; }
+        form { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 35%; }
+        button { padding: 12px 20px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
         button:hover { background-color: #218838; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f8f9fa; }
-        .btn-delete { background-color: #dc3545; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #555; }
+        .btn-delete { background-color: #dc3545; padding: 8px 12px; font-size: 14px; }
         .btn-delete:hover { background-color: #c82333; }
+        .loading { text-align: center; font-style: italic; color: #666; }
     </style>
 </head>
 <body>
 
-    <h1>Sistema de Usuários (Full Stack)</h1>
+<div class="container">
+    <h1>Gerenciador de Usuários</h1>
 
     <form id="userForm">
-        <input type="text" id="nome" placeholder="Nome" required>
+        <input type="text" id="nome" placeholder="Nome Completo" required>
         <input type="email" id="email" placeholder="E-mail" required>
-        <button type="submit">Adicionar Usuário</button>
+        <button type="submit" id="btnSalvar">Salvar Usuário</button>
     </form>
+
+    <div id="loadingMsg" class="loading" style="display: none;">Processando requisição no Render...</div>
 
     <table>
         <thead>
@@ -37,66 +42,70 @@
                 <th>Ações</th>
             </tr>
         </thead>
-        <tbody id="userTableBody">
-            </tbody>
+        <tbody id="userTableBody"></tbody>
     </table>
+</div>
 
-    <script>
-        const API_URL = "https://api-usuarios-java.onrender.com/usuarios";
-        async function fetchUsers() {
-            try {
-                const response = await fetch(API_URL);
-                const users = await response.json();
-                const tableBody = document.getElementById('userTableBody');
-                tableBody.innerHTML = '';
+<script>
+    const API_URL = "https://api-usuarios-java.onrender.com/usuarios";
+    const tableBody = document.getElementById('userTableBody');
+    const loadingMsg = document.getElementById('loadingMsg');
 
-                users.forEach(user => {
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td>${user.id}</td>
-                            <td>${user.nome}</td>
-                            <td>${user.email}</td>
-                            <td>
-                                <button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (error) {
-                console.error("Erro ao buscar usuários:", error);
-            }
+    async function fetchUsers() {
+        try {
+            const response = await fetch(API_URL);
+            const users = await response.json();
+            tableBody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.nome}</td>
+                    <td>${user.email}</td>
+                    <td><button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button></td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error("Erro ao buscar:", error);
         }
+    }
 
-        document.getElementById('userForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSalvar');
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
 
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, email })
-                });
+        btn.disabled = true;
+        loadingMsg.style.display = 'block';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email })
+            });
+
+            if (response.ok) {
                 document.getElementById('userForm').reset();
-                fetchUsers(); // Atualiza a lista
-            } catch (error) {
-                console.error("Erro ao salvar usuário:", error);
+                fetchUsers();
+            } else {
+                alert("Erro ao salvar. Verifique os dados.");
             }
-        });
-
-        async function deleteUser(id) {
-            if (confirm("Deseja realmente excluir este usuário?")) {
-                try {
-                    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-                    fetchUsers(); // Atualiza a lista
-                } catch (error) {
-                    console.error("Erro ao excluir:", error);
-                }
-            }
+        } catch (error) {
+            alert("Erro de conexão com a API.");
+        } finally {
+            btn.disabled = false;
+            loadingMsg.style.display = 'none';
         }
+    });
 
-        fetchUsers();
-    </script>
+    async function deleteUser(id) {
+        if (confirm("Excluir este usuário?")) {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            fetchUsers();
+        }
+    }
+
+    fetchUsers();
+</script>
 </body>
 </html>
