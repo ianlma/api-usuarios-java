@@ -58,9 +58,10 @@
     const tableBody = document.getElementById('userTableBody');
     const loadingMsg = document.getElementById('loadingMsg');
 
-    // Variável para armazenar os dados e filtrar localmente
     let usuariosCache = [];
+    let idUsuarioEmEdicao = null; // Variável para saber se estamos editando alguém
 
+    // 1. Carregar Usuários
     async function fetchUsers() {
         try {
             const response = await fetch(API_URL);
@@ -77,16 +78,33 @@
                 <td>${user.id}</td>
                 <td>${user.nome}</td>
                 <td>${user.email}</td>
-                <td><button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button></td>
+                <td>
+                    <button style="background-color: #007bff; color: white; padding: 8px 12px; font-size: 14px; margin-right: 5px;"
+                            onclick="prepararEdicao(${user.id}, '${user.nome}', '${user.email}')">
+                        Editar
+                    </button>
+                    <button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button>
+                </td>
             </tr>
         `).join('');
     }
 
+    function prepararEdicao(id, nome, email) {
+        idUsuarioEmEdicao = id;
+        document.getElementById('nome').value = nome;
+        document.getElementById('email').value = email;
+
+        const btn = document.getElementById('btnSalvar');
+        btn.innerText = "Atualizar Usuário";
+        btn.style.backgroundColor = "#ffc107";
+        btn.style.color = "black";
+
+        document.getElementById('nome').focus();
+    }
+
     document.getElementById('inputBusca').addEventListener('input', (e) => {
         const termo = e.target.value.toLowerCase();
-        const filtrados = usuariosCache.filter(usuario =>
-            usuario.nome.toLowerCase().includes(termo)
-        );
+        const filtrados = usuariosCache.filter(u => u.nome.toLowerCase().includes(termo));
         renderizarTabela(filtrados);
     });
 
@@ -99,21 +117,31 @@
         btn.disabled = true;
         loadingMsg.style.display = 'block';
 
+        // Se tem ID em edição, usa PUT. Se não, usa POST.
+        const metodo = idUsuarioEmEdicao ? 'PUT' : 'POST';
+        const url = idUsuarioEmEdicao ? `${API_URL}/${idUsuarioEmEdicao}` : API_URL;
+
         try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
+            const response = await fetch(url, {
+                method: metodo,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nome, email })
             });
 
             if (response.ok) {
                 document.getElementById('userForm').reset();
-                fetchUsers(); // Recarrega a lista e atualiza o cache
+
+                idUsuarioEmEdicao = null;
+                btn.innerText = "Salvar Usuário";
+                btn.style.backgroundColor = "#28a745";
+                btn.style.color = "white";
+
+                fetchUsers();
             } else {
-                alert("Erro ao salvar. Verifique os dados.");
+                alert("Erro na operação.");
             }
         } catch (error) {
-            alert("Erro de conexão com a API.");
+            alert("Erro de conexão.");
         } finally {
             btn.disabled = false;
             loadingMsg.style.display = 'none';

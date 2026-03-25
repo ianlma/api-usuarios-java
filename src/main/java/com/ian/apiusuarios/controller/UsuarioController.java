@@ -35,4 +35,5 @@ public class UsuarioController {
     public void deletar(@PathVariable Long id) {
         repository.deleteById(id);
     }
+
 }
