@@ -25,9 +25,23 @@ public class UsuarioController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // Retorna 201 em vez de 200
+    @ResponseStatus(HttpStatus.CREATED)
     public Usuario criar(@Valid @RequestBody Usuario usuario) {
         return repository.save(usuario);
+    }
+
+    @PutMapping("/{id}")
+    public Usuario atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioAtualizado) {
+        return repository.findById(id)
+                .map(usuario -> {
+                    usuario.setNome(usuarioAtualizado.getNome());
+                    usuario.setEmail(usuarioAtualizado.getEmail());
+                    return repository.save(usuario);
+                })
+                .orElseGet(() -> {
+                    usuarioAtualizado.setId(id);
+                    return repository.save(usuarioAtualizado);
+                });
     }
 
     @DeleteMapping("/{id}")
@@ -35,5 +49,4 @@ public class UsuarioController {
     public void deletar(@PathVariable Long id) {
         repository.deleteById(id);
     }
-
 }
