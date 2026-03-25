@@ -8,8 +8,11 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
         .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #007bff; }
-        form { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
+        form { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
         input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 35%; }
+        .search-container { margin-bottom: 25px; display: flex; justify-content: center; }
+        .input-busca { width: 100%; border: 2px solid #007bff; }
+
         button { padding: 12px 20px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
         button:hover { background-color: #218838; }
         table { width: 100%; border-collapse: collapse; }
@@ -31,16 +34,20 @@
         <button type="submit" id="btnSalvar">Salvar Usuário</button>
     </form>
 
+    <div class="search-container">
+        <input type="text" id="inputBusca" class="input-busca" placeholder="🔍 Buscar usuário por nome...">
+    </div>
+
     <div id="loadingMsg" class="loading" style="display: none;">Processando requisição no Render...</div>
 
     <table>
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Ações</th>
-            </tr>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Ações</th>
+        </tr>
         </thead>
         <tbody id="userTableBody"></tbody>
     </table>
@@ -51,22 +58,37 @@
     const tableBody = document.getElementById('userTableBody');
     const loadingMsg = document.getElementById('loadingMsg');
 
+    // Variável para armazenar os dados e filtrar localmente
+    let usuariosCache = [];
+
     async function fetchUsers() {
         try {
             const response = await fetch(API_URL);
-            const users = await response.json();
-            tableBody.innerHTML = users.map(user => `
-                <tr>
-                    <td>${user.id}</td>
-                    <td>${user.nome}</td>
-                    <td>${user.email}</td>
-                    <td><button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button></td>
-                </tr>
-            `).join('');
+            usuariosCache = await response.json();
+            renderizarTabela(usuariosCache);
         } catch (error) {
             console.error("Erro ao buscar:", error);
         }
     }
+
+    function renderizarTabela(lista) {
+        tableBody.innerHTML = lista.map(user => `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.nome}</td>
+                <td>${user.email}</td>
+                <td><button class="btn-delete" onclick="deleteUser(${user.id})">Excluir</button></td>
+            </tr>
+        `).join('');
+    }
+
+    document.getElementById('inputBusca').addEventListener('input', (e) => {
+        const termo = e.target.value.toLowerCase();
+        const filtrados = usuariosCache.filter(usuario =>
+            usuario.nome.toLowerCase().includes(termo)
+        );
+        renderizarTabela(filtrados);
+    });
 
     document.getElementById('userForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -86,7 +108,7 @@
 
             if (response.ok) {
                 document.getElementById('userForm').reset();
-                fetchUsers();
+                fetchUsers(); // Recarrega a lista e atualiza o cache
             } else {
                 alert("Erro ao salvar. Verifique os dados.");
             }
@@ -108,4 +130,31 @@
     fetchUsers();
 </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Usuários - Ian Lima</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #007bff; }
+        form { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 35%; }
+        /* Estilo do campo de busca */
+        .search-container { margin-bottom: 25px; display: flex; justify-content: center; }
+        .input-busca { width: 100%; border: 2px solid #007bff; }
+
+        button { padding: 12px 20px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
+        button:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #555; }
+        .btn-delete { background-color: #dc3545; padding: 8px 12px; font-size: 14px; }
+        .btn-delete:hover { background-color: #c82333; }
+        .loading { text-align: center; font-style: italic; color: #666; }
+    </style>
+</head>
+<body>
+
