@@ -14,7 +14,7 @@ public class Usuario {
     private Long id;
 
     @NotBlank(message = "O nome é obrigatório")
-    @Schema(example = "Ian Oliveira") 
+    @Schema(example = "Ian Oliveira")
     private String nome;
 
     @NotBlank(message = "O e-mail é obrigatório")
@@ -22,11 +22,32 @@ public class Usuario {
     @Schema(example = "ian@exemplo.com")
     private String email;
 
+    // Construtor padrão (Obrigatório para o JPA)
     public Usuario() {}
 
-    public Long getId() { return id; }
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    // Getters e Setters
+    public Long getId() {
+        return id;
+    }
+
+    // ADICIONADO: O método que estava faltando e causando o erro no Render
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

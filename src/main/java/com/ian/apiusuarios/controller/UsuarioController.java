@@ -34,12 +34,13 @@ public class UsuarioController {
     public Usuario atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuarioAtualizado) {
         return repository.findById(id)
                 .map(usuario -> {
+                    // Atualiza os dados do usuário existente
                     usuario.setNome(usuarioAtualizado.getNome());
                     usuario.setEmail(usuarioAtualizado.getEmail());
                     return repository.save(usuario);
                 })
                 .orElseGet(() -> {
-                    usuarioAtualizado.setId(id);
+                    // Se o ID não existir, ele apenas tenta salvar o novo objeto
                     return repository.save(usuarioAtualizado);
                 });
     }
@@ -50,4 +51,3 @@ public class UsuarioController {
         repository.deleteById(id);
     }
 }
-// VRAU
