@@ -1,18 +1,6 @@
 package com.ian.apiusuarios.service;
 
 import com.ian.apiusuarios.model.Usuario;
-import java.util.List;
-
-public interface UsuarioService {
-    List<Usuario> listarTodos();
-    Usuario salvar(Usuario usuario);
-    Usuario atualizar(Long id, Usuario usuario);
-    void deletar(Long id);
-}
-
-package com.ian.apiusuarios.service;
-
-import com.ian.apiusuarios.model.Usuario;
 import com.ian.apiusuarios.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -21,6 +9,7 @@ import java.util.List;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository repository;
+
     public UsuarioServiceImpl(UsuarioRepository repository) {
         this.repository = repository;
     }
@@ -42,7 +31,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                     usuarioExistente.setNome(dadosNovos.getNome());
                     usuarioExistente.setEmail(dadosNovos.getEmail());
                     return repository.save(usuarioExistente);
-                }).orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + id));
+                }).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
     @Override

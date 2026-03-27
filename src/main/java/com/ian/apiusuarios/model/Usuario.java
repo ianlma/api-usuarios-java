@@ -22,7 +22,6 @@ public class Usuario {
     @Schema(example = "ian@exemplo.com")
     private String email;
 
-    // Construtor padrão (Obrigatório para o JPA)
     public Usuario() {}
 
     // Getters e Setters
@@ -30,7 +29,6 @@ public class Usuario {
         return id;
     }
 
-    // ADICIONADO: O método que estava faltando e causando o erro no Render
     public void setId(Long id) {
         this.id = id;
     }
