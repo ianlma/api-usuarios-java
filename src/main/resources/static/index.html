@@ -6,10 +6,10 @@
     <title>Gerenciamento de Usuários - Ian Lima</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
-        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #007bff; }
-        form { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 35%; }
+        form { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 28%; }
         .search-container { margin-bottom: 25px; display: flex; justify-content: center; }
         .input-busca { width: 100%; border: 2px solid #007bff; }
 
@@ -20,7 +20,7 @@
         th { background-color: #f8f9fa; color: #555; }
         .btn-delete { background-color: #dc3545; padding: 8px 12px; font-size: 14px; }
         .btn-delete:hover { background-color: #c82333; }
-        .loading { text-align: center; font-style: italic; color: #666; }
+        .loading { text-align: center; font-style: italic; color: #666; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -31,6 +31,7 @@
     <form id="userForm">
         <input type="text" id="nome" placeholder="Nome Completo" required>
         <input type="email" id="email" placeholder="E-mail" required>
+        <input type="password" id="senha" placeholder="Senha" required>
         <button type="submit" id="btnSalvar">Salvar Usuário</button>
     </form>
 
@@ -59,9 +60,8 @@
     const loadingMsg = document.getElementById('loadingMsg');
 
     let usuariosCache = [];
-    let idUsuarioEmEdicao = null; // Variável para saber se estamos editando alguém
+    let idUsuarioEmEdicao = null;
 
-    // 1. Carregar Usuários
     async function fetchUsers() {
         try {
             const response = await fetch(API_URL);
@@ -93,6 +93,8 @@
         idUsuarioEmEdicao = id;
         document.getElementById('nome').value = nome;
         document.getElementById('email').value = email;
+        // Limpamos a senha por segurança na edição, o usuário digita uma nova ou a mesma
+        document.getElementById('senha').value = "";
 
         const btn = document.getElementById('btnSalvar');
         btn.innerText = "Atualizar Usuário";
@@ -113,11 +115,11 @@
         const btn = document.getElementById('btnSalvar');
         const nome = document.getElementById('nome').value;
         const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value; // CAPTURA A SENHA
 
         btn.disabled = true;
         loadingMsg.style.display = 'block';
 
-        // Se tem ID em edição, usa PUT. Se não, usa POST.
         const metodo = idUsuarioEmEdicao ? 'PUT' : 'POST';
         const url = idUsuarioEmEdicao ? `${API_URL}/${idUsuarioEmEdicao}` : API_URL;
 
@@ -125,23 +127,22 @@
             const response = await fetch(url, {
                 method: metodo,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email })
+                body: JSON.stringify({ nome, email, senha })
             });
 
             if (response.ok) {
                 document.getElementById('userForm').reset();
-
                 idUsuarioEmEdicao = null;
                 btn.innerText = "Salvar Usuário";
                 btn.style.backgroundColor = "#28a745";
                 btn.style.color = "white";
-
                 fetchUsers();
             } else {
-                alert("Erro na operação.");
+                const erroData = await response.json();
+                alert("Erro na API: " + (erroData.message || "Verifique os dados."));
             }
         } catch (error) {
-            alert("Erro de conexão.");
+            alert("Erro de conexão com o servidor.");
         } finally {
             btn.disabled = false;
             loadingMsg.style.display = 'none';
@@ -150,39 +151,16 @@
 
     async function deleteUser(id) {
         if (confirm("Excluir este usuário?")) {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            fetchUsers();
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                fetchUsers();
+            } catch (error) {
+                alert("Erro ao excluir.");
+            }
         }
     }
 
     fetchUsers();
 </script>
 </body>
-</html><!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Usuários - Ian Lima</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; color: #333; }
-        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #007bff; }
-        form { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 35%; }
-        /* Estilo do campo de busca */
-        .search-container { margin-bottom: 25px; display: flex; justify-content: center; }
-        .input-busca { width: 100%; border: 2px solid #007bff; }
-
-        button { padding: 12px 20px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #218838; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: #555; }
-        .btn-delete { background-color: #dc3545; padding: 8px 12px; font-size: 14px; }
-        .btn-delete:hover { background-color: #c82333; }
-        .loading { text-align: center; font-style: italic; color: #666; }
-    </style>
-</head>
-<body>
-
+</html>
