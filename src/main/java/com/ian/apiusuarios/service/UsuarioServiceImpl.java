@@ -20,6 +20,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public Usuario buscarPorId(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o id: " + id));
+    }
+
+    @Override
     public Usuario salvar(Usuario usuario) {
         return repository.save(usuario);
     }
@@ -30,6 +36,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .map(usuarioExistente -> {
                     usuarioExistente.setNome(dadosNovos.getNome());
                     usuarioExistente.setEmail(dadosNovos.getEmail());
+                    usuarioExistente.setSenha(dadosNovos.getSenha());
                     return repository.save(usuarioExistente);
                 }).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
