@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Usuario {
@@ -27,6 +28,7 @@ public class Usuario {
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
     @Schema(example = "senha123", description = "Mínimo de 8 caracteres")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
 
     @Column(name = "data_criacao", updatable = false)
